@@ -1,0 +1,20 @@
+[project]
+name = "chat-pdf"
+version = "0.1.0"
+description = "Chat PDF"
+authors = [
+    {name = "amandaozava", email = "amanda.ozava@hotmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "streamlit (>=1.45.0,<2.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "langchain (>=0.3.25,<0.4.0)",
+    "pypdf2 (>=3.0.1,<4.0.0)",
+    "faiss-cpu (>=1.11.0,<2.0.0)",
+    "langchain-community (>=0.3.23,<0.4.0)",
+    "openai (>=1.78.0,<2.0.0)",
+    "tiktoken (>=0.9.0,<0.10.0)",
+    "streamlit-chat (>=0.1.1,<0.2.0)"
+]
