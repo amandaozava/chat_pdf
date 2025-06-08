@@ -5,7 +5,7 @@ from utils import chatbot
 from dotenv import load_dotenv
 import logging
 from streamlit_chat import message
-
+import os
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -21,32 +21,48 @@ def main():
     if 'conversation_chain' not in st.session_state:
         st.session_state.conversation_chain = None
 
-    if user_question:
-        logger.info("User question received: %s", user_question)
-        
-        response = st.session_state.conversation_chain(user_question)['chat_history'][-1]
-        message(user_question, is_user=True)
-        message(response.content, is_user=False)
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
 
+    if user_question and st.session_state.conversation_chain:
+        logger.info("User question received: %s", user_question)
+
+        response = st.session_state.conversation_chain({"question": user_question})
+
+        st.session_state.chat_history.append({"role": "user", "content": user_question})
+        st.session_state.chat_history.append({"role": "assistant", "content": response["answer"]})
+
+        for chat in st.session_state.chat_history:
+            message(chat["content"], is_user=(chat["role"] == "user"))
+
+        with st.expander("Sources used in the answer"):
+            for i, doc in enumerate(response["source_documents"]):
+                source = doc.metadata.get("source", "Desconhecido")
+                st.markdown(f"**Fonte {i+1}:** {source}")
+                st.markdown(f"> {doc.page_content[:300]}...")
 
     with st.sidebar:
         st.subheader('Files')
         pdf_docs = st.file_uploader('Upload your PDF files', accept_multiple_files=True)
 
         if st.button('Process'):
-            logger.info("Starting to process PDFs...")
-            all_files_text = text.process_files(pdf_docs)
+            if os.path.exists("./chroma_db"):
+                logger.info("Loading existing vector store...")
+                vector_store = open_ai_embedding.load_vector_store()
+            else:
+                logger.info("Extracting text from PDFs...")
+                all_files_text = text.process_files(pdf_docs)
 
-            logger.info("Extracted texts. Creating chunks...")
-            chunks = text.create_text_chunks(all_files_text)
+                logger.info("Creating chunks...")
+                chunks = text.create_text_chunks(all_files_text)
 
-            logger.info("Chunks created. Creating embedding vector...")
-            vector_store = open_ai_embedding.create_vector_store(chunks)
-            logger.info("Vector created successfully: %s", vector_store)
+                logger.info("Creating vector store and persisting embeddings...")
+                vector_store = open_ai_embedding.create_vector_store(chunks)
 
             logger.info("Creating conversation chain...") 
             st.session_state.conversation_chain = chatbot.create_conversation_chain(vector_store)
-            logger.info("Conversation chain created successfully.") 
+            logger.info("Conversation chain created successfully.")
 
 if __name__ == '__main__':
     main()
+
