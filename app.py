@@ -28,18 +28,21 @@ def main():
         logger.info("User question received: %s", user_question)
 
         response = st.session_state.conversation_chain({"question": user_question})
+        st.session_state.user_question = "" 
 
         st.session_state.chat_history.append({"role": "user", "content": user_question})
         st.session_state.chat_history.append({"role": "assistant", "content": response["answer"]})
 
-        for chat in st.session_state.chat_history:
+        for chat in st.session_state.chat_history[::-1]:
             message(chat["content"], is_user=(chat["role"] == "user"))
 
-        with st.expander("Sources used in the answer"):
-            for i, doc in enumerate(response["source_documents"]):
+        with st.expander("Source used in the answer"):
+            if response["source_documents"]:
+                doc = response["source_documents"][0]
                 source = doc.metadata.get("source", "Desconhecido")
-                st.markdown(f"**Fonte {i+1}:** {source}")
+                st.markdown(f"**Fonte:** {source}")
                 st.markdown(f"> {doc.page_content[:300]}...")
+
 
     with st.sidebar:
         st.subheader('Files')
