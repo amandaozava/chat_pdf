@@ -1,5 +1,5 @@
 [project]
-name = "chat-pdf"
+name = "chat_pdf"
 version = "0.1.0"
 description = "Chat PDF"
 authors = [
@@ -19,5 +19,17 @@ dependencies = [
     "streamlit-chat (>=0.1.1,<0.2.0)",
     "langchain-openai (>=0.3.16,<0.4.0)",
     "chromadb (>=1.0.12,<2.0.0)",
-    "protobuf (==3.20.3)"
+    "protobuf (==3.20.3)",
+    "unstructured[all] (>=0.17.2,<0.18.0)",
+    "docx (>=0.2.4,<0.3.0)",
+    "python-docx (>=1.1.2,<2.0.0)",
+    "docx2txt (>=0.9,<0.10)",
+    "lint (>=1.2.1,<2.0.0)"
 ]
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.1"
+[tool.ruff]
+line-length = 100
+target-version = "py310"  # Altere se estiver usando outro Python
+exclude = ["venv", ".venv", "migrations", "__pycache__"]
+

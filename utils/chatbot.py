@@ -1,8 +1,8 @@
 from langchain.chains import ConversationalRetrievalChain
-from langchain.llms import OpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
+
 
 def create_conversation_chain(vector_store):
     llm = ChatOpenAI(
